@@ -11,10 +11,12 @@
 	* LCD D5 pin (12) -> d2
 	* LCD D6 pin (14) -> d1
 	* LCD D7 pin (13) -> d0
-	* LCD R/W pin (5) to ground
+	* LCD R/W pin (5) -> ground
+	* LCD VSS (1) -> +3-5v
+	* LCD VDD (2) -> gnd
 	* 10K pot:
-	* ends to +5V and 1k -> ground
-	* wiper to LCD VO pin (3)
+	*	 ends to +5V and 1k -> ground
+	*	 wiper to LCD VO pin (3)
 	
 	Controls:
 	* Up button -> d8
@@ -70,8 +72,10 @@ bool dry = 0;
 bool wet = 0;
 bool light = 0;
 
-int setting[3] = {70, 30, 90, 60, 50}; // templow, humlow, temphi, humhi, light
-float current[3] = {75, 50, 50};
+int temp[3] = {70, 90}; // templow, temphi
+int hum[3] = {30, 60}; // humlow, humhi
+int light = 50; // light set
+float current[3] = {75, 50, 50}; // temp, hum, light
 
 long lastAction = 0;
 long actionDelay = 3000; // delay in ms
@@ -129,20 +133,20 @@ void acquire() {
 		current[1] = h;
 	}
 
-	current[3] = analogRead(lightPin);
+	current[2] = analogRead(lightPin);
 }
 
 void adjust() {
-	int heatPoint = setting[0] - setting[0] * hyst;
-	int heatStop  = setting[0] + setting[0] * hyst;
-	int coolPoint = setting[2] + setting[2] * hyst;
-	int coolStop  = setting[2] - setting[2] * hyst;
-	int mistPoint = setting[1] - setting[1] * hyst;
-	int mistStop  = setting[1] + setting[1] * hyst;
-	int dryPoint  = setting[3] + setting[3] * hyst;
-	int dryStop   = setting[3] - setting[3] * hyst;
-	int lightPoint = setting[4] + setting[4] * hyst;
-	int darkPoint = setting[4] - setting[4] * hyst;
+	int heatPoint = temp[0] - temp[0] * hyst;
+	int heatStop  = temp[0] + temp[0] * hyst;
+	int coolPoint = temp[1] + temp[1] * hyst;
+	int coolStop  = temp[1] - temp[1] * hyst;
+	int mistPoint = hum[0] - hum[0] * hyst;
+	int mistStop  = hum[0] + hum[0] * hyst;
+	int dryPoint  = hum[1] + hum[1] * hyst;
+	int dryStop   = hum[1] - hum[1] * hyst;
+	int lightPoint = light + light * hyst;
+	int darkPoint = light - light * hyst;
 
 	if ((millis() - lastAction) > actionDelay) {
 		lcd.setCursor(9, 0);
@@ -170,10 +174,10 @@ void adjust() {
 
 		if (current[3] > lightPoint)
 			// bright outside. turn on lamp.
-			light = 1;
+			bright = 1;
 		else if (current[3] < darkPoint)
 			// dark outside. turn off lamp.
-			light = 0;
+			bright = 0;
 		}
 		
 		lcd.setCursor(11, 1);
@@ -210,7 +214,7 @@ void adjust() {
 			digitalWrite(mistPin, HIGH);
 		else
 			digitalWrite(mistPin, LOW);
-		if (light == 1)
+		if (bright == 1)
 			digitalWrite(lampPin, HIGH);
 		else
 			digitalWrite(lampPin, LOW);
@@ -288,27 +292,31 @@ void show() {
 	lcd.setCursor(0,1);
 	lcd.print("%RH:");
 	
-	int readingPos;
-	int settingPos[4];
+	int numPos[2] = {6, 12}; // reading, low set, high set
 
 	// set display positions
 	for (int i = 0; i < 2; i++) {
-		if (current[i] > 99)
-			readingPos = 5;
+		if (i == 0)
+			current = temp;
 		else
-			readingPos = 6;
+			current = hum;
 
-		if (setting[i] > 99)
-			settingPos[0] = 11;
+		if (current[i] > 99); // account for 3-digit readings
+			numPos[0] = numPos[0] - 1;
 		else
-			settingPos[0] = 12;
+			numPos[0] = numPos[0];
 
-		settingPos[1] = 15;
+		if (setting[i] > 99); // account for 3-digit settings
+			numPos[1] = numPos[1] - 1;
+		else
+			numPos[1] = numPos[1];
 
 		lcd.clear()
-		lcd.setCursor(readingPos[0], i);
+		
+		lcd.setCursor(numPos[1], i); // print reading
 		lcd.print((int) current[i]);
-		lcd.setCursor(settingPos[1], i);
+
+		lcd.setCursor(numPos[1], i); // print setting
 		lcd.print(setting[i]);
 		lcd.print("-");
 		lcd.print(setting[i+2]);
