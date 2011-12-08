@@ -35,6 +35,8 @@
 	* Lamp (outlet) -> d10
 
 	TODO:
+	make setting reference consistent
+	 - array?
 	invert selected setting while changing
 	Add second sensor?
 	Determine light sensor scaling. Adjust default threshold.	
@@ -42,17 +44,18 @@
 	add light status to LCD
 */
 
-#include "DHT.h"
 #include <LiquidCrystal.h>
+#include "DHT.h"
 
 #define DHTPIN A0
 #define DHTTYPE DHT11
 #define LCDLINES 2
 #define LCDCHARS 20
 
-DHT dht(DHTPIN, DHTTYPE);
 
+DHT dht(DHTPIN, DHTTYPE);
 LiquidCrystal lcd(5, 4, 3, 2, 1, 0);
+
 const int upPin = 8;
 const int downPin = 7;
 const int enterPin = 6;
@@ -72,9 +75,10 @@ bool dry = 0;
 bool wet = 0;
 bool light = 0;
 
-int temp[3] = {70, 90}; // templow, temphi
-int hum[3] = {30, 60}; // humlow, humhi
-int light = 50; // light set
+int selected = 0;
+int temp[2] = {70, 90}; // templow, temphi
+int hum[2] = {30, 60}; // humlow, humhi
+int bright = 50; // lamp set
 float current[3] = {75, 50, 50}; // temp, hum, light
 
 long lastAction = 0;
@@ -145,8 +149,8 @@ void adjust() {
 	int mistStop  = hum[0] + hum[0] * hyst;
 	int dryPoint  = hum[1] + hum[1] * hyst;
 	int dryStop   = hum[1] - hum[1] * hyst;
-	int lightPoint = light + light * hyst;
-	int darkPoint = light - light * hyst;
+	int lightPoint = bright + bright * hyst;
+	int darkPoint = bright - bright * hyst;
 
 	if ((millis() - lastAction) > actionDelay) {
 		lcd.setCursor(9, 0);
@@ -174,11 +178,10 @@ void adjust() {
 
 		if (current[3] > lightPoint)
 			// bright outside. turn on lamp.
-			bright = 1;
+			light = 1;
 		else if (current[3] < darkPoint)
 			// dark outside. turn off lamp.
-			bright = 0;
-		}
+			light = 0;
 		
 		lcd.setCursor(11, 1);
 		if (current[1] < mistPoint) {
@@ -214,7 +217,7 @@ void adjust() {
 			digitalWrite(mistPin, HIGH);
 		else
 			digitalWrite(mistPin, LOW);
-		if (bright == 1)
+		if (light == 1)
 			digitalWrite(lampPin, HIGH);
 		else
 			digitalWrite(lampPin, LOW);
@@ -223,7 +226,7 @@ void adjust() {
 	}
 }
 
-void change(int selected) {
+void change() {
 	long lastClick = millis();
 	int old = setting[selected];
 	while (millis() < lastClick + timeout) {
@@ -257,7 +260,6 @@ int debounce(int pin) {
 }
 
 void menu() {
-	int selected = 0;
 	long lastClick = millis();
 
 	while (millis() < lastClick + timeout) {
@@ -320,5 +322,11 @@ void show() {
 		lcd.print(setting[i]);
 		lcd.print("-");
 		lcd.print(setting[i+2]);
+		
+		if (selected < 5) {
+			lcd.setCursor(numPos[selected]+1); // move cursor to current setting
+			lcd.cursor();
+		else
+			lcd.noCursor();
 	}
 }
