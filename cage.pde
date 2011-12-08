@@ -35,23 +35,19 @@
 	* Lamp (outlet) -> d10
 
 	TODO:
-	make setting reference consistent
-	 - array?
-	invert selected setting while changing
+	change '-' between settings to < or > when changing
 	Add second sensor?
-	Determine light sensor scaling. Adjust default threshold.	
+	allow setting light %
 	make light icon
-	add light status to LCD
 */
 
 #include <LiquidCrystal.h>
 #include "DHT.h"
 
-#define DHTPIN A0
+#define DHTPIN 14 //A0
 #define DHTTYPE DHT11
 #define LCDLINES 2
 #define LCDCHARS 20
-
 
 DHT dht(DHTPIN, DHTTYPE);
 LiquidCrystal lcd(5, 4, 3, 2, 1, 0);
@@ -76,10 +72,13 @@ bool wet = 0;
 bool light = 0;
 
 int selected = 0;
-int temp[2] = {70, 90}; // templow, temphi
-int hum[2] = {30, 60}; // humlow, humhi
-int bright = 50; // lamp set
-float current[3] = {75, 50, 50}; // temp, hum, light
+//int temp[2] = {70, 90}; // templow, temphi
+//int hum[2] = {30, 60}; // humlow, humhi
+int setting[4] = {25, 30, 30, 60}; // templow, temphi, humlow, humhi
+int bright = 1000; // lamp set (700-960-1020)
+float current[3] = {25, 50, 50}; // temp, hum, light
+int setPos[4] = {11, 14, 11, 14}; // reading, low set, high set
+int statusPos = 8;
 
 long lastAction = 0;
 long actionDelay = 3000; // delay in ms
@@ -99,7 +98,7 @@ void setup() {
 	lcd.begin(LCDCHARS,LCDLINES);
 	lcd.clear();
 	for (int i = 0; i < LCDLINES; i++) {
-		lcd.setCursor(11, i);
+		lcd.setCursor(statusPos, i);
 		lcd.print("--");
 	}	
 
@@ -141,19 +140,29 @@ void acquire() {
 }
 
 void adjust() {
-	int heatPoint = temp[0] - temp[0] * hyst;
-	int heatStop  = temp[0] + temp[0] * hyst;
-	int coolPoint = temp[1] + temp[1] * hyst;
-	int coolStop  = temp[1] - temp[1] * hyst;
-	int mistPoint = hum[0] - hum[0] * hyst;
-	int mistStop  = hum[0] + hum[0] * hyst;
-	int dryPoint  = hum[1] + hum[1] * hyst;
-	int dryStop   = hum[1] - hum[1] * hyst;
-	int lightPoint = bright + bright * hyst;
-	int darkPoint = bright - bright * hyst;
+//	int heatPoint = temp[0] - temp[0] * hyst;
+//	int heatStop  = temp[0] + temp[0] * hyst;
+//	int coolPoint = temp[1] + temp[1] * hyst;
+//	int coolStop  = temp[1] - temp[1] * hyst;
+//	int mistPoint = hum[0] - hum[0] * hyst;
+//	int mistStop  = hum[0] + hum[0] * hyst;
+//	int dryPoint  = hum[1] + hum[1] * hyst;
+//	int dryStop   = hum[1] - hum[1] * hyst;
+//	int lightPoint = bright + bright * hyst;
+//	int darkPoint = bright - bright * hyst;
 
+	int heatPoint = setting[0] - setting[0] * hyst;
+	int heatStop  = setting[0] + setting[0] * hyst;
+	int coolPoint = setting[1] + setting[1] * hyst;
+	int coolStop  = setting[1] - setting[1] * hyst;
+	int mistPoint = setting[2] - setting[2] * hyst;
+	int mistStop  = setting[2] + setting[2] * hyst;
+	int dryPoint  = setting[3] + setting[3] * hyst;
+	int dryStop   = setting[3] - setting[3] * hyst;
+	int lightPoint = setting[4] + setting[4] * hyst;
+	int darkPoint = setting[4] - setting[4] * hyst;
 	if ((millis() - lastAction) > actionDelay) {
-		lcd.setCursor(9, 0);
+		lcd.setCursor(statusPos, 0);
 		if (current[0] < heatPoint ) {
 			// too cold. turn on heater.
 			lcd.print("^^");
@@ -176,14 +185,14 @@ void adjust() {
 			hot = 0;
 		}
 
-		if (current[3] > lightPoint)
+		if (current[2] > lightPoint)
 			// bright outside. turn on lamp.
 			light = 1;
-		else if (current[3] < darkPoint)
+		else if (current[2] < darkPoint)
 			// dark outside. turn off lamp.
 			light = 0;
 		
-		lcd.setCursor(11, 1);
+		lcd.setCursor(statusPos, 1);
 		if (current[1] < mistPoint) {
 			// too dry. turn on mist.
 			lcd.print("^^");
@@ -263,20 +272,26 @@ void menu() {
 	long lastClick = millis();
 
 	while (millis() < lastClick + timeout) {
-		lcd.setCursor(18, selected);
+		lcd.setCursor(setPos[selected], selected / 2);
 		lcd.print("<");
 		
-	if (debounce(downPin) || debounce(upPin)) {
+	if (debounce(downPin)) {
 			lcd.setCursor(18, selected);
 			lcd.print(" ");
-			selected = !selected;
+			selected = (--selected % 4);
+			lastClick = millis();
+		}
+	if (debounce(upPin)) {
+			lcd.setCursor(18, selected);
+			lcd.print(" ");
+			selected = (++selected % 4);
 			lastClick = millis();
 		}
 		
 	if (debounce(enterPin)) {
-			lcd.setCursor(18, selected);
+			lcd.setCursor(setPos[selected], selected / 2);
 			lcd.print("*");
-			change(selected);
+			change();
 			break;
 		}
 	}
@@ -290,43 +305,54 @@ void show() {
 	lcd.setCursor(1,0);
 	lcd.print(char(223));
 	lcd.setCursor(2,0);
-	lcd.print("F:");
+	lcd.print("C:");
 	lcd.setCursor(0,1);
 	lcd.print("%RH:");
 	
-	int numPos[2] = {6, 12}; // reading, low set, high set
-
 	// set display positions
-	for (int i = 0; i < 2; i++) {
-		if (i == 0)
-			current = temp;
+	//lcd.clear();
+
+	int line = 0;
+	for (int i = 0; i < 4; i++) {
+		if (setting[i] > 99) // account for 3-digit settings
+			setPos[i] = setPos[i] - 1;
 		else
-			current = hum;
+			setPos[i] = setPos[i];
 
-		if (current[i] > 99); // account for 3-digit readings
-			numPos[0] = numPos[0] - 1;
-		else
-			numPos[0] = numPos[0];
-
-		if (setting[i] > 99); // account for 3-digit settings
-			numPos[1] = numPos[1] - 1;
-		else
-			numPos[1] = numPos[1];
-
-		lcd.clear()
-		
-		lcd.setCursor(numPos[1], i); // print reading
-		lcd.print((int) current[i]);
-
-		lcd.setCursor(numPos[1], i); // print setting
+		lcd.setCursor(setPos[i], line); // print settings
 		lcd.print(setting[i]);
-		lcd.print("-");
-		lcd.print(setting[i+2]);
-		
-		if (selected < 5) {
-			lcd.setCursor(numPos[selected]+1); // move cursor to current setting
-			lcd.cursor();
-		else
-			lcd.noCursor();
+		if (not (i % 2))
+			lcd.print("-");
+		if (i == 1)
+			line++;
 	}
+
+	// display light status and setting
+
+	lcd.setCursor(18, 0);
+	if (light)
+		lcd.print("^");
+	else
+		lcd.print("v");
+	
+	lcd.setCursor(18, 1);
+	lcd.print((current[2]-700)/3.2);
+
+	int rdgPos = 5;
+	for (int i = 0; i < 2; i++) {
+		if (current[i] > 99) // account for 3-digit readings
+			rdgPos = rdgPos - 1;
+		else
+			rdgPos = rdgPos;
+		
+		lcd.setCursor(rdgPos, i); // print reading
+		lcd.print((int) current[i]);
+	}
+
+	if (selected < 5) {
+		lcd.setCursor(setPos[selected]+1, selected / 2); // move cursor to current setting
+		lcd.cursor();
+	}
+	else
+		lcd.noCursor();
 }
