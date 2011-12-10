@@ -35,9 +35,9 @@
 	* Lamp (outlet) -> d10
 
 	TODO:
-	change '-' between settings to < or > when changing
+TEST	change '-' between settings to < or > when changing
 	Add second sensor?
-	allow setting light %
+TEST	allow setting light %
 	make light icon
 */
 
@@ -77,7 +77,7 @@ int selected = 0;
 int setting[4] = {25, 30, 30, 60}; // templow, temphi, humlow, humhi
 int bright = 1000; // lamp set (700-960-1020)
 float current[3] = {25, 50, 50}; // temp, hum, light
-int setPos[4] = {11, 14, 11, 14}; // reading, low set, high set
+int setPos[4] = {11, 14, 11, 14}; // low set, high set
 int statusPos = 8;
 
 long lastAction = 0;
@@ -270,35 +270,35 @@ int debounce(int pin) {
 
 void menu() {
 	long lastClick = millis();
+	selPos = setPos[0] + 2;
 
 	while (millis() < lastClick + timeout) {
-		lcd.setCursor(setPos[selected], selected / 2);
-		lcd.print("<");
-		
-	if (debounce(downPin)) {
-			lcd.setCursor(18, selected);
-			lcd.print(" ");
+		lcd.setCursor(selPos, selected % 2);
+		lcd.print("-");
+		lcd.setCursor(selPos, selected / 2);
+		if (selected == 4)
+			lcd.setCursor(17, 0);
+			lcd.print(">");
+		else if (selected % 2)
+			lcd.print("<");
+		else
+			lcd.print(">");
+
+		if (debounce(downPin)) {
 			selected = (--selected % 4);
 			lastClick = millis();
 		}
-	if (debounce(upPin)) {
-			lcd.setCursor(18, selected);
-			lcd.print(" ");
+		if (debounce(upPin)) {
 			selected = (++selected % 4);
 			lastClick = millis();
 		}
-		
-	if (debounce(enterPin)) {
-			lcd.setCursor(setPos[selected], selected / 2);
-			lcd.print("*");
+
+		if (debounce(enterPin)) {
 			change();
 			break;
 		}
 	}
-	for (int i = 0; i < LCDLINES; i++) {
-		lcd.setCursor(18, i);
-		lcd.print(" ");
-	}
+	lcd.clear()
 }
 
 void show() {
