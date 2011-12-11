@@ -38,7 +38,7 @@
 TEST	change '-' between settings to < or > when changing
 	Add second sensor?
 TEST	allow setting light %
-	make light icon
+TEST	make light icon
 */
 
 #include <LiquidCrystal.h>
@@ -72,8 +72,6 @@ bool wet = 0;
 bool light = 0;
 
 int selected = 0;
-//int temp[2] = {70, 90}; // templow, temphi
-//int hum[2] = {30, 60}; // humlow, humhi
 int setting[4] = {25, 30, 30, 60}; // templow, temphi, humlow, humhi
 int bright = 1000; // lamp set (700-960-1020)
 float current[3] = {25, 50, 50}; // temp, hum, light
@@ -91,8 +89,32 @@ float hyst = .03;
 // menu timeout in ms
 long timeout = 15000;
 
+byte lampOn[8] = {
+	B00000,
+	B01100,
+	B01100,
+	B00000,
+	B00000,
+	B00000,
+	B00000,
+	B00000
+};
+
+byte lampOff[8] = {
+	B00000,
+	B00010,
+	B00011,
+	B00111,
+	B11110,
+	B01100,
+	B00000,
+	B00000
+};
+
 void setup() {
 	dht.begin();
+	lcd.createChar(0, lampOn);
+	lcd.createChar(1, lampOff);
 
 	// configure display
 	lcd.begin(LCDCHARS,LCDLINES);
@@ -140,17 +162,6 @@ void acquire() {
 }
 
 void adjust() {
-//	int heatPoint = temp[0] - temp[0] * hyst;
-//	int heatStop  = temp[0] + temp[0] * hyst;
-//	int coolPoint = temp[1] + temp[1] * hyst;
-//	int coolStop  = temp[1] - temp[1] * hyst;
-//	int mistPoint = hum[0] - hum[0] * hyst;
-//	int mistStop  = hum[0] + hum[0] * hyst;
-//	int dryPoint  = hum[1] + hum[1] * hyst;
-//	int dryStop   = hum[1] - hum[1] * hyst;
-//	int lightPoint = bright + bright * hyst;
-//	int darkPoint = bright - bright * hyst;
-
 	int heatPoint = setting[0] - setting[0] * hyst;
 	int heatStop  = setting[0] + setting[0] * hyst;
 	int coolPoint = setting[1] + setting[1] * hyst;
@@ -331,9 +342,9 @@ void show() {
 
 	lcd.setCursor(18, 0);
 	if (light)
-		lcd.print("^");
+		lcd.print(1);
 	else
-		lcd.print("v");
+		lcd.print(2);
 	
 	lcd.setCursor(18, 1);
 	lcd.print((current[2]-700)/3.2);
@@ -348,11 +359,4 @@ void show() {
 		lcd.setCursor(rdgPos, i); // print reading
 		lcd.print((int) current[i]);
 	}
-
-	if (selected < 5) {
-		lcd.setCursor(setPos[selected]+1, selected / 2); // move cursor to current setting
-		lcd.cursor();
-	}
-	else
-		lcd.noCursor();
 }
