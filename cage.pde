@@ -35,10 +35,10 @@
 	* Lamp (outlet) -> d10
 
 	TODO:
-TEST	change '-' between settings to < or > when changing
 	Add second sensor?
-TEST	allow setting light %
-TEST	make light icon
+	fix corrupted light icon
+	expand sanity check to disallow hi/lo settings to cross
+
 */
 
 #include <LiquidCrystal.h>
@@ -48,6 +48,8 @@ TEST	make light icon
 #define DHTTYPE DHT11
 #define LCDLINES 2
 #define LCDCHARS 20
+#define LDRMIN  100 // light sensor min reading
+#define LDRMAX 1020 // light sensor max reading
 
 DHT dht(DHTPIN, DHTTYPE);
 LiquidCrystal lcd(5, 4, 3, 2, 1, 0);
@@ -72,8 +74,7 @@ bool wet = 0;
 bool light = 0;
 
 int selected = 0;
-int setting[4] = {25, 30, 30, 60}; // templow, temphi, humlow, humhi
-int bright = 1000; // lamp set (700-960-1020)
+int setting[5] = {25, 30, 30, 60, 50}; // templow, temphi, humlow, humhi, light
 float current[3] = {25, 50, 50}; // temp, hum, light
 int setPos[4] = {11, 14, 11, 14}; // low set, high set
 int statusPos = 8;
@@ -91,24 +92,24 @@ long timeout = 15000;
 
 byte lampOn[8] = {
 	B00000,
+	B01101,
 	B01100,
-	B01100,
+	B00001,
+	B10100,
 	B00000,
 	B00000,
 	B00000,
-	B00000,
-	B00000
 };
 
 byte lampOff[8] = {
-	B00000,
-	B00010,
-	B00011,
-	B00111,
-	B11110,
-	B01100,
-	B00000,
-	B00000
+	B11111,
+	B11101,
+	B11100,
+	B11000,
+	B00001,
+	B10011,
+	B11111,
+	B11111,
 };
 
 void setup() {
@@ -128,28 +129,31 @@ void setup() {
 	pinMode(upPin, INPUT);
 	pinMode(downPin, INPUT);
 	pinMode(enterPin, INPUT);
-	
+
 	// configure actuators
 	pinMode(heatPin, OUTPUT);
 	pinMode(fanPin, OUTPUT);
 	pinMode(mistPin, OUTPUT);
-	
+
 	// configure sensors
 	pinMode(temp1Pin, INPUT);
 }
 
 void loop() {
 	acquire();
-	show();
+	show(0);
 	adjust();
 
-	if (debounce(enterPin))
-		menu();
+	for (int i = 0; i < 1000; i++) {
+		if (debounce(enterPin))
+			menu();
+	}
 }
 
 void acquire() {
 	float t = dht.readTemperature();
 	float h = dht.readHumidity();
+	float l = analogRead(lightPin);
 
 	if (isnan(t) || isnan(h))
 		return;
@@ -158,20 +162,20 @@ void acquire() {
 		current[1] = h;
 	}
 
-	current[2] = analogRead(lightPin);
+	current[2] = 100 * (l - (LDRMIN)) / (LDRMAX - LDRMIN);
 }
 
 void adjust() {
-	int heatPoint = setting[0] - setting[0] * hyst;
-	int heatStop  = setting[0] + setting[0] * hyst;
-	int coolPoint = setting[1] + setting[1] * hyst;
-	int coolStop  = setting[1] - setting[1] * hyst;
-	int mistPoint = setting[2] - setting[2] * hyst;
-	int mistStop  = setting[2] + setting[2] * hyst;
-	int dryPoint  = setting[3] + setting[3] * hyst;
-	int dryStop   = setting[3] - setting[3] * hyst;
-	int lightPoint = setting[4] + setting[4] * hyst;
-	int darkPoint = setting[4] - setting[4] * hyst;
+	float heatPoint = setting[0] - setting[0] * hyst;
+	float heatStop  = setting[0] + setting[0] * hyst;
+	float coolPoint = setting[1] + setting[1] * hyst;
+	float coolStop  = setting[1] - setting[1] * hyst;
+	float mistPoint = setting[2] - setting[2] * hyst;
+	float mistStop  = setting[2] + setting[2] * hyst;
+	float dryPoint  = setting[3] + setting[3] * hyst;
+	float dryStop   = setting[3] - setting[3] * hyst;
+	float lightPoint = setting[4] + setting[4] * hyst;
+	float darkPoint = setting[4] - setting[4] * hyst;
 	if ((millis() - lastAction) > actionDelay) {
 		lcd.setCursor(statusPos, 0);
 		if (current[0] < heatPoint ) {
@@ -184,7 +188,7 @@ void adjust() {
 			lcd.print("--");
 			cold = 0;
 		}
-		
+
 		if (current[0] > coolPoint) {
 			// too warm. turn on fan.
 			lcd.print("vv");
@@ -202,7 +206,7 @@ void adjust() {
 		else if (current[2] < darkPoint)
 			// dark outside. turn off lamp.
 			light = 0;
-		
+
 		lcd.setCursor(statusPos, 1);
 		if (current[1] < mistPoint) {
 			// too dry. turn on mist.
@@ -241,7 +245,7 @@ void adjust() {
 			digitalWrite(lampPin, HIGH);
 		else
 			digitalWrite(lampPin, LOW);
-		
+
 		lastAction = millis();
 	}
 }
@@ -249,6 +253,8 @@ void adjust() {
 void change() {
 	long lastClick = millis();
 	int old = setting[selected];
+	bool flash = 0;
+
 	while (millis() < lastClick + timeout) {
 		if (debounce(upPin)) {
 			setting[selected]++;
@@ -258,7 +264,14 @@ void change() {
 			setting[selected]--;
 			lastClick = millis();
 		}
-		show();
+		// setting sanity check
+		if (setting[selected] < 0)
+			setting[selected] = 0;
+		else if (setting[selected] > 99)
+			setting[selected] = 99;
+
+		show(1);
+
 		if (debounce(enterPin))
 			break;
 	}
@@ -279,28 +292,54 @@ int debounce(int pin) {
 		return false;
 }
 
+// properly display 1-, 2-, or 3-digit numbers
+void disp(int num, int col, int row) {
+	lcd.setCursor(col, row);
+	if (num < 10)
+		lcd.print(" ");
+	lcd.print(num);
+}
+
 void menu() {
 	long lastClick = millis();
-	selPos = setPos[0] + 2;
+	int selPos = setPos[0] + 2;
+	selected = 0;
+	int row = 0;
 
+	show(1);
 	while (millis() < lastClick + timeout) {
-		lcd.setCursor(selPos, selected % 2);
+		lcd.setCursor(0, 0);
+	//	lcd.print(selected);
+		row = selected / 2;
+
+		// clear indicator
+		for (int i = 0; i < 2; i++) {
+			lcd.setCursor(selPos, i);
+			lcd.print("-");
+		}
+		lcd.setCursor(17, 0);
 		lcd.print("-");
-		lcd.setCursor(selPos, selected / 2);
+
+		// set indicator
+		lcd.setCursor(selPos, row);
 		if (selected == 4)
+		{
 			lcd.setCursor(17, 0);
 			lcd.print(">");
+	//		disp(setting[4], 17, 1);
+		}
 		else if (selected % 2)
-			lcd.print("<");
-		else
 			lcd.print(">");
+		else
+			lcd.print("<");
 
 		if (debounce(downPin)) {
-			selected = (--selected % 4);
+			selected = ++selected % 5;
 			lastClick = millis();
 		}
 		if (debounce(upPin)) {
-			selected = (++selected % 4);
+			if (--selected < 0)
+				selected = 4;
 			lastClick = millis();
 		}
 
@@ -309,54 +348,48 @@ void menu() {
 			break;
 		}
 	}
-	lcd.clear()
+	// clear indicator
+	for (int i = 0; i < 2; i++) {
+		lcd.setCursor(selPos, i);
+		lcd.print("-");
+	}
+	lcd.setCursor(17, 0);
+	lcd.print(" ");
 }
 
-void show() {
+void show(bool setFlag) {
 	lcd.setCursor(1,0);
 	lcd.print(char(223));
 	lcd.setCursor(2,0);
 	lcd.print("C:");
 	lcd.setCursor(0,1);
 	lcd.print("%RH:");
-	
+
 	// set display positions
-	//lcd.clear();
 
 	int line = 0;
 	for (int i = 0; i < 4; i++) {
-		if (setting[i] > 99) // account for 3-digit settings
-			setPos[i] = setPos[i] - 1;
-		else
-			setPos[i] = setPos[i];
-
-		lcd.setCursor(setPos[i], line); // print settings
-		lcd.print(setting[i]);
-		if (not (i % 2))
+		disp(setting[i], setPos[i], line);
+		if (not (i % 2) && not setFlag)
 			lcd.print("-");
 		if (i == 1)
 			line++;
 	}
 
-	// display light status and setting
+	// display light status and reading
 
 	lcd.setCursor(18, 0);
 	if (light)
-		lcd.print(1);
+		lcd.write(0);
 	else
-		lcd.print(2);
-	
-	lcd.setCursor(18, 1);
-	lcd.print((current[2]-700)/3.2);
+		lcd.write(1);
+
+	if (setFlag)
+		disp (setting[4], 17, 1);
+	else
+		disp((int) current[2], 17, 1);
 
 	int rdgPos = 5;
-	for (int i = 0; i < 2; i++) {
-		if (current[i] > 99) // account for 3-digit readings
-			rdgPos = rdgPos - 1;
-		else
-			rdgPos = rdgPos;
-		
-		lcd.setCursor(rdgPos, i); // print reading
-		lcd.print((int) current[i]);
-	}
+	for (int i = 0; i < 2; i++)
+		disp((int) current[i], rdgPos, i);
 }
