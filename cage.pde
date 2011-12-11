@@ -37,7 +37,7 @@
 	TODO:
 	Add second sensor?
 	fix corrupted light icon
-	expand sanity check to disallow hi/lo settings to cross
+	set realistic setpoint limits
 
 */
 
@@ -269,6 +269,16 @@ void change() {
 			setting[selected] = 0;
 		else if (setting[selected] > 99)
 			setting[selected] = 99;
+
+		if (selected != 4) {
+			if (selected == 1 || selected == 3) { // if hi < lo, lo = hi
+				if (setting[selected] < setting[selected - 1])
+					setting[selected - 1] = setting[selected];
+			}
+			else // if lo > hi, hi = lo
+				if (setting[selected] > setting[selected + 1])
+					setting[selected + 1] = setting[selected];
+		}
 
 		show(1);
 
