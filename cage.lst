@@ -1,0 +1,93 @@
+eeschema (2011-05-25)-stable  >> Creation date: Sat 08 Oct 2011 11:18:57 AM MST
+
+#Cmp ( order = Reference )
+| C1         C           ;             
+| C2         C           ;             
+| D1         RED         ;             
+| D2         YELLOW      ;             
+| D3         GREEN       ;             
+| D4         DIODE       ;             
+| D5         DIODE       ;             
+| D6         DIODE       ;             
+| D7         DIODE       ;             
+| D8         DIODE       ;             
+| D9         DIODE       ;             
+| D10        DIODE       ;             
+| D11        DIODE       ;             
+| D12        DIODE       ;             
+| IC1        MEGA8-P     ; atmel-DIL28-3
+| Kcool1     RELAY_SPDT  ;             
+| Kheat1     RELAY_SPDT  ;             
+| Klamp1     RELAY_SPDT  ;             
+| Kmist1     RELAY_SPDT  ;             
+| P1         SEN_LIGHT   ;             
+| P2         SEN_TH      ;             
+| P3         CONN_8X2    ;             
+| P4         MIST        ;             
+| P5         LAMP        ;             
+| P6         CONN_TE     ;             
+| P7         CONN_FAN1   ;             
+| P8         CONN_FAN2   ;             
+| Q1         NPN         ;             
+| Q2         NPN         ;             
+| Q3         NPN         ;             
+| Q4         NPN         ;             
+| Q5         NPN         ;             
+| R1         R           ;             
+| R2         10K         ;             
+| R3         330         ;             
+| R4         1K          ;             
+| RP1        3k3         ;             
+| RP2        33k         ;             
+| RV1        25K         ;             
+| SW1        SW_PUSH     ;             
+| SW2        SW_PUSH     ;             
+| SW3        SW_PUSH     ;             
+#End Cmp
+
+#Cmp ( order = Value )
+| 10K          R2        ;             
+| 1K           R4        ;             
+| 25K          RV1       ;             
+| 330          R3        ;             
+| 33k          RP2       ;             
+| 3k3          RP1       ;             
+| C            C1        ;             
+| C            C2        ;             
+| CONN_8X2     P3        ;             
+| CONN_FAN1    P7        ;             
+| CONN_FAN2    P8        ;             
+| CONN_TE      P6        ;             
+| DIODE        D4        ;             
+| DIODE        D5        ;             
+| DIODE        D6        ;             
+| DIODE        D7        ;             
+| DIODE        D8        ;             
+| DIODE        D9        ;             
+| DIODE        D10       ;             
+| DIODE        D11       ;             
+| DIODE        D12       ;             
+| GREEN        D3        ;             
+| LAMP         P5        ;             
+| MEGA8-P      IC1       ; atmel-DIL28-3
+| MIST         P4        ;             
+| NPN          Q1        ;             
+| NPN          Q2        ;             
+| NPN          Q3        ;             
+| NPN          Q4        ;             
+| NPN          Q5        ;             
+| R            R1        ;             
+| RED          D1        ;             
+| RELAY_SPDT   Kcool1    ;             
+| RELAY_SPDT   Kheat1    ;             
+| RELAY_SPDT   Klamp1    ;             
+| RELAY_SPDT   Kmist1    ;             
+| SEN_LIGHT    P1        ;             
+| SEN_TH       P2        ;             
+| SW_PUSH      SW1       ;             
+| SW_PUSH      SW2       ;             
+| SW_PUSH      SW3       ;             
+| YELLOW       D2        ;             
+#End Cmp
+
+#End List
