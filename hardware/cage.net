@@ -1,0 +1,397 @@
+# EESchema Netlist Version 1.1 created  Mon 05 Mar 2012 11:21:31 PM MST
+(
+ ( /4E815973 C1 C1 C
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4E840C64 C1 C2 C
+  ( 1 VCC )
+  ( 2 GND )
+ )
+ ( /4EED32D9 C1 C3 C
+  ( 1 VDD )
+  ( 2 GND )
+ )
+ ( /4E91F903 $noname$ D1 RGB_LED_CC
+  ( 1 N-000055 )
+  ( 2 N-000022 )
+  ( 3 N-000041 )
+  ( 4 N-000059 )
+ )
+ ( /4E8C0FBC D5 D4 DIODE
+  ( 1 N-000032 )
+  ( 2 VCC )
+ )
+ ( /4E8C0FCA D5 D5 DIODE
+  ( 1 N-000030 )
+  ( 2 VCC )
+ )
+ ( /4E8C0FF3 D5 D6 DIODE
+  ( 1 N-000056 )
+  ( 2 VCC )
+ )
+ ( /4E8C1000 D5 D7 DIODE
+  ( 1 N-000049 )
+  ( 2 VCC )
+ )
+ ( /4E8409C1 D5 D8 DIODE
+  ( 1 N-000050 )
+  ( 2 N-000042 )
+ )
+ ( /4E8409C4 D5 D9 DIODE
+  ( 1 N-000058 )
+  ( 2 N-000042 )
+ )
+ ( /4E840BBD D5 D10 DIODE
+  ( 1 N-000042 )
+  ( 2 N-000043 )
+ )
+ ( /4E840C04 D5 D11 DIODE
+  ( 1 GND )
+  ( 2 N-000042 )
+ )
+ ( /4E840C0E D5 D12 DIODE
+  ( 1 GND )
+  ( 2 N-000043 )
+ )
+ ( /4E812DD2 DIP-28__300 IC1 MEGA8-P
+  ( 1 N-000046 )
+  ( 2 N-000036 )
+  ( 3 N-000045 )
+  ( 4 N-000064 )
+  ( 5 N-000037 )
+  ( 6 N-000051 )
+  ( 7 VCC )
+  ( 8 GND )
+  ( 9 ? )
+  ( 10 ? )
+  ( 11 N-000038 )
+  ( 12 N-000035 )
+  ( 13 N-000052 )
+  ( 14 N-000033 )
+  ( 15 N-000022 )
+  ( 16 N-000054 )
+  ( 17 N-000059 )
+  ( 18 N-000055 )
+  ( 19 N-000057 )
+  ( 20 VCC )
+  ( 21 ? )
+  ( 22 GND )
+  ( 23 N-000034 )
+  ( 24 N-000026 )
+  ( 25 ? )
+  ( 26 ? )
+  ( 27 ? )
+  ( 28 ? )
+ )
+ ( /4E9214A9 KSA K1 RELAY_COOL
+  ( 1 VCC )
+  ( 2 N-000056 )
+  ( 3 N-000050 )
+  ( 4 GND )
+  ( 5 VDD )
+ )
+ ( /4E9214AE KSA K2 RELAY_HEAT
+  ( 1 VCC )
+  ( 2 N-000049 )
+  ( 3 N-000058 )
+  ( 4 GND )
+  ( 5 VDD )
+ )
+ ( /4E92149A KSA K3 RELAY_MIST
+  ( 1 VCC )
+  ( 2 N-000032 )
+  ( 3 N-000053 )
+  ( 4 ? )
+  ( 5 N-000048 )
+ )
+ ( /4E9214A6 KSA K4 RELAY_LAMP
+  ( 1 VCC )
+  ( 2 N-000030 )
+  ( 3 N-000053 )
+  ( 4 ? )
+  ( 5 N-000047 )
+ )
+ ( /4E840FD8 2PIN_6mm P1 SEN_LIGHT
+  ( 1 VCC )
+  ( 2 N-000026 )
+ )
+ ( /4E840F78 3PIN_6mm P2 SEN_TH
+  ( 1 VCC )
+  ( 2 N-000044 )
+  ( 3 ? )
+  ( 4 GND )
+ )
+ ( /4E65439B he10-16d P3 CONN_8X2
+  ( 1 GND )
+  ( 2 VCC )
+  ( 3 N-000039 )
+  ( 4 N-000038 )
+  ( 5 GND )
+  ( 6 N-000051 )
+  ( 7 ? )
+  ( 8 ? )
+  ( 9 ? )
+  ( 10 ? )
+  ( 11 N-000037 )
+  ( 12 N-000064 )
+  ( 13 N-000045 )
+  ( 14 N-000036 )
+  ( 15 ? )
+  ( 16 ? )
+ )
+ ( /4E81546B 2PIN_6mm P4 MIST
+  ( 1 N-000048 )
+  ( 2 GND )
+ )
+ ( /4E81545D 2PIN_6mm P5 LAMP
+  ( 1 N-000047 )
+  ( 2 GND )
+ )
+ ( /4E84085E 2PIN_6mm P6 CONN_TE
+  ( 1 N-000050 )
+  ( 2 N-000058 )
+ )
+ ( /4E84098C 2PIN_6mm P7 CONN_FAN1
+  ( 1 N-000042 )
+  ( 2 GND )
+ )
+ ( /4E840994 2PIN_6mm P8 CONN_FAN2
+  ( 1 N-000043 )
+  ( 2 GND )
+ )
+ ( /4E921B30 2PIN_6mm P9 CONN_PWR
+  ( 1 GND )
+  ( 2 VDD )
+ )
+ ( /4E7C0F6D TO92 Q1 NPN
+  ( 1 GND )
+  ( 2 N-000021 )
+  ( 3 N-000032 )
+ )
+ ( /4E83CF8A TO92 Q2 NPN
+  ( 1 GND )
+  ( 2 N-000062 )
+  ( 3 N-000056 )
+ )
+ ( /4E7C0F4D TO92 Q3 NPN
+  ( 1 GND )
+  ( 2 N-000031 )
+  ( 3 N-000030 )
+ )
+ ( /4E840818 TO92 Q4 NPN
+  ( 1 GND )
+  ( 2 N-000020 )
+  ( 3 N-000049 )
+ )
+ ( /4E840ADD TO92 Q5 NPN
+  ( 1 N-000043 )
+  ( 2 N-000061 )
+  ( 3 VDD )
+ )
+ ( /4E812EA4 R5 R1 R
+  ( 1 VCC )
+  ( 2 N-000046 )
+ )
+ ( /4E654AD6 R5 R2 10K
+  ( 1 VCC )
+  ( 2 N-000063 )
+ )
+ ( /4E655030 R5 R3 330
+  ( 1 GND )
+  ( 2 N-000041 )
+ )
+ ( /4E6547E4 R5 R4 1K
+  ( 1 N-000040 )
+  ( 2 GND )
+ )
+ ( /4F0A08C0 R5 R5 10k
+  ( 1 N-000044 )
+  ( 2 N-000034 )
+ )
+ ( /4F0A07B8 R5 R6 10k
+  ( 1 N-000026 )
+  ( 2 GND )
+ )
+ ( /4F14CDDC R5 R7 3k3
+  ( 1 N-000031 )
+  ( 2 N-000054 )
+ )
+ ( /4F14CE38 R5 R8 3k3
+  ( 1 N-000021 )
+  ( 2 N-000022 )
+ )
+ ( /4F14CE3D R5 R9 3k3
+  ( 1 N-000062 )
+  ( 2 N-000059 )
+ )
+ ( /4F14CE3F R5 R10 3k3
+  ( 1 N-000020 )
+  ( 2 N-000055 )
+ )
+ ( /4F14CE40 R5 R11 3k3
+  ( 1 N-000061 )
+  ( 2 N-000057 )
+ )
+ ( /4E8C16CD 20TEX300 RP2 33k
+  ( 1 N-000031 )
+  ( 2 N-000021 )
+  ( 3 N-000062 )
+  ( 4 N-000020 )
+  ( 5 N-000061 )
+  ( 6 ? )
+  ( 7 ? )
+  ( 8 ? )
+  ( 9 ? )
+  ( 10 ? )
+  ( 11 ? )
+  ( 12 GND )
+  ( 13 GND )
+  ( 14 GND )
+  ( 15 GND )
+  ( 16 GND )
+ )
+ ( /4E654644 20TEX300 RV1 25K
+  ( 1 VCC )
+  ( 2 N-000039 )
+  ( 3 N-000040 )
+ )
+ ( /4E659845 SW_PUSH-12mm SW1 SW_PUSH
+  ( 1 N-000035 )
+  ( 2 N-000063 )
+ )
+ ( /4E65984D SW_PUSH-12mm SW2 SW_PUSH
+  ( 1 N-000033 )
+  ( 2 N-000063 )
+ )
+ ( /4E659853 SW_PUSH-12mm SW3 SW_PUSH
+  ( 1 N-000052 )
+  ( 2 N-000063 )
+ )
+ ( /4E921CC4 LM78XX U1 LM7805
+  ( GND GND )
+  ( VI VDD )
+  ( VO VCC )
+ )
+)
+*
+{ Allowed footprints by component:
+$component C1
+ SM*
+ C?
+ C1-1
+$endlist
+$component C2
+ SM*
+ C?
+ C1-1
+$endlist
+$component C3
+ SM*
+ C?
+ C1-1
+$endlist
+$component D4
+ D?
+ S*
+$endlist
+$component D5
+ D?
+ S*
+$endlist
+$component D6
+ D?
+ S*
+$endlist
+$component D7
+ D?
+ S*
+$endlist
+$component D8
+ D?
+ S*
+$endlist
+$component D9
+ D?
+ S*
+$endlist
+$component D10
+ D?
+ S*
+$endlist
+$component D11
+ D?
+ S*
+$endlist
+$component D12
+ D?
+ S*
+$endlist
+$component R1
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R2
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R3
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R4
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R5
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R6
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R7
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R8
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R9
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R10
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$component R11
+ R?
+ SM0603
+ SM0805
+ R?-*
+$endlist
+$endfootprintlist
+}
